@@ -5,27 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>COMPTEUR</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script>
-        const url = new URL(window.location.href);
-
-        const paramFormId = url.searchParams.get('formid');
-            if (!paramFormId) {
-                const alertMessage = `
-                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                        <strong>Error:</strong> The 'formid' parameter is missing or empty.
-                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>`
-                document.body.insertAdjacentHTML('beforeend', alertMessage);
-            };
-            
-            console.log(paramFormId);
-            
-            const googleFormsUrl = `https://docs.google.com/forms/d/e/${paramFormId}/formResponse?&submit=Submit?usp=pp_url`;
-
-
-    </script>
     <style>
         .popup { display: none; position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #4CAF50; color: white; padding: 10px; border-radius: 5px; }
     </style>
@@ -42,7 +21,24 @@
     </div>
     <div id="popup" class="popup">Données envoyées avec succès !</div>
     
+    
     <script>
+        const url = new URL(window.location.href);
+
+        const paramFormId = url.searchParams.get('formid');
+        if (!paramFormId) {
+            showPopup("Pas d'ID", "error");
+        };
+    
+    console.log(paramFormId);
+    
+    const googleFormsUrl = `https://docs.google.com/forms/d/e/${paramFormId}/formResponse?&submit=Submit?usp=pp_url`;
+
+    if (!paramFormId) {
+        showPopup("Pas de formID", "error");
+    } 
+
+
         function updateButtons() {
             const menu = document.getElementById("menu").value;
             const container = document.getElementById("buttonContainer");
@@ -73,17 +69,30 @@
             let formData = new FormData();
             formData.append("entry.1011954574", menuValue);
             formData.append("entry.1328695196", action);
-            
+            if (!paramFormId) {
+                showPopup("Pas de formID", "error");
+            }   
             fetch(googleFormsUrl, {
                 method: "POST",
                 mode: "no-cors",
                 body: formData
             })
             .then(() => {
-                let popup = document.getElementById("popup");
-                popup.style.display = "block";
-                setTimeout(() => { popup.style.display = "none"; }, 3000);
+                showPopup("Données envoyées avec succès !", "success");
+            })
+            .catch(() => {
+                showPopup("Erreur lors de l'envoi des données !", "error");
             });
+        }
+
+        function showPopup(message, type) {
+            let popup = document.getElementById("popup");
+            popup.innerText = message;
+            popup.className = `popup ${type}`;
+            popup.style.display = "block";
+            setTimeout(() => { popup.style.display = "none"; }, 3000);
+
+            
         }
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
